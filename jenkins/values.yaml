@@ -314,10 +314,24 @@ controller:
   # etc.  Best reference is https://<jenkins_url>/configuration-as-code/reference.  The example below creates a welcome message:
   JCasC:
     defaultConfig: true
-    configScripts: {}
-    #  welcome-message: |
-    #    jenkins:
-    #      systemMessage: Welcome to our CI\CD server.  This Jenkins is configured and managed 'as code'.
+    configScripts:
+      add-agent: |
+        jenkins:
+          nodes:
+            - permanent:
+                name: "static-agent"
+                remoteFS: "/home/jenkins"
+                labelString: "slave"
+                launcher:
+                  jnlp:
+                    workDirSettings:
+                      disabled: true
+                      failIfWorkDirIsMissing: false
+                      internalDir: "remoting"
+                      workDirPath: "/tmp"
+          slaveAgentPort: 50000
+          agentProtocols:
+            - "jnlp2"
     # Ignored if securityRealm is defined in controller.JCasC.configScripts and
     securityRealm: |-
       local:
