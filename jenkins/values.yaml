@@ -314,6 +314,7 @@ controller:
   # etc.  Best reference is https://<jenkins_url>/configuration-as-code/reference.  The example below creates a welcome message:
   JCasC:
     defaultConfig: true
+    configScripts: {}
     # Ignored if securityRealm is defined in controller.JCasC.configScripts and
     securityRealm: |-
       local:
@@ -737,9 +738,21 @@ agent:
 # Here you can add additional agents
 # They inherit all values from `agent` so you only need to specify values which differ
 additionalAgents:
-  slave-agent:
-    podName: slave-agent
-    customJenkinsLabels: slave
+  slave-agent-default:
+    podName: slave-agent-default
+    customJenkinsLabels: "slave default"
+  slave-agent-python:
+    podName: slave-agent-python
+    customJenkinsLabels: "slave python"
+    image: jenkins/jnlp-agent-python3
+    tag: "latest"
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "512Mi"
+    limits:
+      cpu: "2000m"
+      memory: "4096Mi"
 #  maven:
 #    podName: maven
 #    customJenkinsLabels: maven
