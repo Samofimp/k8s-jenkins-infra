@@ -315,6 +315,9 @@ controller:
   JCasC:
     defaultConfig: true
     configScripts: {}
+    #  welcome-message: |
+    #    jenkins:
+    #      systemMessage: Welcome to our CI\CD server.  This Jenkins is configured and managed 'as code'.
     # Ignored if securityRealm is defined in controller.JCasC.configScripts and
     securityRealm: |-
       local:
@@ -737,19 +740,23 @@ agent:
 
 # Here you can add additional agents
 # They inherit all values from `agent` so you only need to specify values which differ
-additionalAgents:
-  slave-agent-default:
-    podName: slave-agent-default
-    customJenkinsLabels: "slave default"
-  python:
-    podName: python
-    customJenkinsLabels: "slave python"
-    sideContainerName: python
-    image: python
-    tag: "3"
-    command: "/bin/sh -c"
-    args: "cat"
-    TTYEnabled: true
+additionalAgents: {}
+#  maven:
+#    podName: maven
+#    customJenkinsLabels: maven
+#    # An example of overriding the jnlp container
+#    # sideContainerName: jnlp
+#    image: jenkins/jnlp-agent-maven
+#    tag: latest
+#  python:
+#    podName: python
+#    customJenkinsLabels: python
+#    sideContainerName: python
+#    image: python
+#    tag: "3"
+#    command: "/bin/sh -c"
+#    args: "cat"
+#    TTYEnabled: true
 
 persistence:
   enabled: true
@@ -891,3 +898,4 @@ awsSecurityGroupPolicies:
     - name: ""
       securityGroupIds: []
       podSelector: {}
+

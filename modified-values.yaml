@@ -1,0 +1,83 @@
+controller:
+  # List of plugins to be install during Jenkins controller start
+  installPlugins:
+    - kubernetes:3600.v144b_cd192ca_a_
+    - workflow-aggregator:581.v0c46fa_697ffd
+    - git:4.11.3
+    - configuration-as-code:1429.v09b_044a_c93de
+    - job-dsl:1.81
+
+  # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
+  scriptApproval: []
+
+  # Below is the implementation of Jenkins Configuration as Code.  Add a key under configScripts for each configuration area,
+  # where each corresponds to a plugin or section of the UI.  Each key (prior to | character) is just a label, and can be any value.
+  # Keys are only used to give the section a meaningful name.  The only restriction is they may only contain RFC 1123 \ DNS label
+  # characters: lowercase letters, numbers, and hyphens.  The keys become the name of a configuration yaml file on the controller in
+  # /var/jenkins_home/casc_configs (by default) and will be processed by the Configuration as Code Plugin.  The lines after each |
+  # become the content of the configuration yaml file.  The first line after this is a JCasC root element, eg jenkins, credentials,
+  # etc.  Best reference is https://<jenkins_url>/configuration-as-code/reference.  The example below creates a welcome message:
+  JCasC:
+    defaultConfig: true
+    configScripts:
+      init-job: |
+        jobs:
+          - script: >
+              pipelineJob('hello-flask') {
+                definition {
+                  cps {
+                    script("""\
+                      pipeline {
+                        agent none
+                        stages {
+                            stage('SCM stage') {
+                                agent { label 'slave && default' } 
+                                steps {
+                                    git url: 'https://github.com/Samofimp/hello-flask.git'
+                                    stash includes: '**', name: 'git-repo' 
+                                }
+                            }
+                            stage('Build stage') {
+                                agent { label 'slave && python' } 
+                                steps {
+                                    container('python') {
+                                        dir('hello-flask') {
+                                            unstash 'git-repo'
+                                            sh '''
+                                            pip install -r requirements.txt
+                                            python add-build-num.py ^${BUILD_NUMBER}
+                                            tar -zcvf hello-^${BUILD_NUMBER}.tar.gz application.py requirements.txt
+                                            '''
+                                            stash includes: 'hello-^${BUILD_NUMBER}.tar.gz', name: 'app'
+                                        }
+                                    }
+                                }
+                            }
+                            stage('Post-build stage') {
+                                agent { label 'slave && default' } 
+                                steps {
+                                    unstash 'app'
+                                    archiveArtifacts artifacts: 'hello-^${BUILD_NUMBER}.tar.gz'
+                                }
+                            }
+                        }
+                      }""".stripIndent())
+                    }
+                  }
+                }
+
+# Here you can add additional agents
+# They inherit all values from `agent` so you only need to specify values which differ
+additionalAgents:
+  slave-agent-default:
+    podName: slave-agent-default
+    customJenkinsLabels: "slave default"
+  python:
+    podName: python
+    customJenkinsLabels: "slave python"
+    sideContainerName: python
+    image: python
+    tag: "3"
+    command: "/bin/sh -c"
+    args: "cat"
+    TTYEnabled: true
