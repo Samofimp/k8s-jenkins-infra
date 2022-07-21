@@ -24,6 +24,9 @@ controller:
         jobs:
           - script: >
               pipelineJob('hello-flask') {
+                triggers {
+                  scm('H/15 * * * *')
+                }
                 definition {
                   cpsScm {
                     scm {
@@ -32,9 +35,9 @@ controller:
                         remote { url('https://github.com/Samofimp/hello-flask.git') }
                       }
                     }
-                    }
                   }
                 }
+              }
 
 # Here you can add additional agents
 # They inherit all values from `agent` so you only need to specify values which differ
