@@ -589,7 +589,7 @@ agent:
   maxRequestsPerHostStr: "32"
   namespace:
   image: "jenkins/inbound-agent"
-  tag: "4.11.2-4"
+  tag: "4.11-1-jdk11"
   workingDir: "/home/jenkins/agent"
   nodeUsageMode: "NORMAL"
   customJenkinsLabels: []
@@ -899,3 +899,7 @@ awsSecurityGroupPolicies:
       securityGroupIds: []
       podSelector: {}
 
+docker:
+  enabled: false
+  username:
+  password:

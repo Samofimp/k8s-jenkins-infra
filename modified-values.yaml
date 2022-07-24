@@ -6,6 +6,7 @@ controller:
     - git:4.11.3
     - configuration-as-code:1429.v09b_044a_c93de
     - job-dsl:1.81
+    - kubernetes-credentials-provider:0.22
 
   # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
   scriptApproval: []
@@ -31,7 +32,7 @@ controller:
                   cpsScm {
                     scm {
                       git {
-                        branch('master')
+                        branch('docker')
                         remote { url('https://github.com/Samofimp/hello-flask.git') }
                       }
                     }
@@ -54,3 +55,7 @@ additionalAgents:
     command: "/bin/sh -c"
     args: "cat"
     TTYEnabled: true
+
+rbac:
+  create: true
+  readSecrets: true
